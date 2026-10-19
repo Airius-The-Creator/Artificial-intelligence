@@ -1,53 +1,85 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Airius AI Pro</title><link rel="manifest" href="manifest.json"><style>body{font-family:Arial;background:#0f0f0f;color:#fff;padding:12px;max-width:700px;margin:auto}h1{text-align:center;color:#00ffaa}h3{margin:0 0 8px}.card{background:#1e1e1e;padding:14px;border-radius:14px;margin:14px 0;border:1px solid #333}input,textarea,button,select{width:100%;padding:11px;margin:6px 0;border-radius:8px;border:none;box-sizing:border-box}button{background:#00ffaa;color:#000;font-weight:bold;cursor:pointer}.row{display:flex;gap:8px}.row button{flex:1}img,video,canvas{width:100%;border-radius:10px;margin-top:8px;background:#000}.filters button{background:#2a2a2a;color:#fff;margin:2px;padding:8px;font-size:12px;width:auto;display:inline-block}</style><script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script></head><body>
-<h1>🤖 Airius AI Pro</h1>
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Airius V5 Ultimate</title><link rel="manifest" href="manifest.json"><style>body{font-family:Arial;background:#0f0f0f;color:#fff;padding:10px;max-width:750px;margin:auto}h1{text-align:center;color:#00ffaa}.card{background:#1e1e1e;padding:14px;border-radius:16px;margin:14px 0;border:1px solid #2a2a2a}input,textarea,button,select{width:100%;padding:11px;margin:5px 0;border-radius:8px;border:none;box-sizing:border-box}button{background:#00ffaa;color:#000;font-weight:bold}button.sec{background:#333;color:#fff} .row{display:flex;gap:6px} .row *{flex:1} img,video,canvas{width:100%;border-radius:12px;margin-top:8px;background:#000} .small{font-size:11px;color:#888}</style>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+</head><body>
+<h1>🤖 Airius V5</h1>
 
-<div class="card"><h3>🎨 Generate / Edit Photo</h3>
-<input id="genImgPrompt" placeholder="Generate: ex. futuristic Cebu city">
-<button onclick="genImage()">Generate Photo</button>
-<hr style="border-color:#333">
-<input type="file" id="editImgFile" accept="image/*" onchange="loadEditImage(this)">
-<div class="filters"><button onclick="applyFilter('none')">Normal</button><button onclick="applyFilter('grayscale(1)')">Black&White</button><button onclick="applyFilter('sepia(1)')">Sepia</button><button onclick="applyFilter('contrast(1.5)')">HD</button><button onclick="applyFilter('blur(2px)')">Blur</button></div>
-<img id="resultImg"><canvas id="editCanvas" style="display:none"></canvas>
-<div class="row"><button onclick="downloadImg()">Download</button><button onclick="removeBg()">Remove BG (AI)</button></div>
+<!-- PHOTO EDITOR WITH ADD PICTURE/VIDEO -->
+<div class="card"><h3>🎨 Photo Edit - Add Pic/Video</h3>
+<input id="genP" placeholder="Generate ex: fish in ocean">
+<button onclick="genPhoto()">Generate Photo</button>
+<div class="row"><button class="sec" onclick="document.getElementById('photoMain').click()">📁 Add Main Photo</button><button class="sec" onclick="document.getElementById('photoAdd').click()">🖼️ Add Picture (Sticker)</button></div>
+<div class="row"><button class="sec" onclick="document.getElementById('photoAddVid').click()">🎥 Add Video to Photo</button><button class="sec" onclick="downloadCanvas()">⬇️ Download Result</button></div>
+<input type="file" id="photoMain" accept="image/*" hidden onchange="loadToCanvas(this,'main')">
+<input type="file" id="photoAdd" accept="image/*" hidden onchange="loadToCanvas(this,'sticker')">
+<input type="file" id="photoAddVid" accept="video/*" hidden onchange="loadToCanvas(this,'video')">
+<canvas id="photoCanvas" width="768" height="768"></canvas>
+<div class="row"><button class="sec" onclick="applyF('none')">Normal</button><button class="sec" onclick="applyF('grayscale(1)')">B&W</button><button class="sec" onclick="applyF('contrast(1.5)')">HD</button><button class="sec" onclick="clearCanvas()">Clear</button></div>
+<p class="small">Pwede ka mag-generate, tapos add picture sa ibabaw, tapos download.</p>
 </div>
 
-<div class="card"><h3>🎥 Video - Generate / Upload</h3>
-<input id="genVidPrompt" placeholder="Generate: ex. dragon over sea">
-<button onclick="genVideo()">Generate Video</button>
-<input type="file" id="vidFile" accept="video/*" onchange="loadVideo(this)">
-<video id="resultVid" controls></video>
+<!-- VIDEO EDITOR WITH ADD PICTURE/VIDEO -->
+<div class="card"><h3>🎬 Video Edit - Add Pic/Video</h3>
+<input id="genV" placeholder="Generate video prompt">
+<button onclick="genVid()">Generate Video</button>
+<div class="row"><button class="sec" onclick="document.getElementById('vidMain').click()">📁 Add Main Video</button><button class="sec" onclick="document.getElementById('vidAddPic').click()">🖼️ Add Picture Overlay</button></div>
+<div class="row"><button class="sec" onclick="document.getElementById('vidAddVid').click()">🎥 Add Another Video</button><button class="sec" onclick="captureFrame()">📸 Capture Frame as Photo</button></div>
+<input type="file" id="vidMain" accept="video/*" hidden onchange="loadMainVideo(this)">
+<input type="file" id="vidAddPic" accept="image/*" hidden onchange="addPicToVideo(this)">
+<input type="file" id="vidAddVid" accept="video/*" hidden onchange="addVidToVid(this)">
+<video id="mainVideo" controls></video>
+<img id="videoOverlay" style="display:none;position:relative;margin-top:-60px;opacity:0.8;width:30%;border:2px solid #00ffaa">
+<p class="small">Upload main video mo, tapos add picture sa gilid as overlay.</p>
 </div>
 
-<div class="card"><h3>📐 Math & Science - Scan or File</h3>
-<div class="row"><button onclick="document.getElementById('mathFile').click()">📁 Add Picture (File)</button><button onclick="startCamera()">📷 Scan (Camera)</button></div>
-<input type="file" id="mathFile" accept="image/*" style="display:none" onchange="solveWithImage(this)">
-<video id="cam" style="display:none" autoplay playsinline></video><button id="snapBtn" style="display:none" onclick="snap()">Take Photo</button><canvas id="snapCanvas" style="display:none"></canvas>
-<img id="mathImgPreview" style="display:none">
-<textarea id="mathQ" placeholder="Or type problem: Solve x^2+5x+6=0"></textarea>
-<button onclick="solveMath()">Solve & Explain</button>
-<p id="mathAns" style="white-space:pre-wrap;background:#111;padding:10px;border-radius:8px"></p>
+<!-- MATH & SCIENCE WITH ADD PICTURE/VIDEO -->
+<div class="card"><h3>📐 Math & Science Solver - Add Pic/Video/File/Scan</h3>
+<div class="row"><button class="sec" onclick="document.getElementById('mathPic').click()">🖼️ Add Picture</button><button class="sec" onclick="document.getElementById('mathVid').click()">🎥 Add Video</button></div>
+<div class="row"><button class="sec" onclick="document.getElementById('mathFile').click()">📁 Add File</button><button class="sec" onclick="startCam()">📷 Scan Camera</button></div>
+<input type="file" id="mathPic" accept="image/*" hidden onchange="handleMathMedia(this,'image')">
+<input type="file" id="mathVid" accept="video/*" hidden onchange="handleMathMedia(this,'video')">
+<input type="file" id="mathFile" accept="image/*,application/pdf" hidden onchange="handleMathMedia(this,'file')">
+<video id="cam" autoplay playsinline style="display:none"></video><button id="snapBtn" style="display:none" onclick="snapMath()">Take Photo</button><canvas id="snapCanvas" style="display:none"></canvas>
+<img id="mathPrev" style="display:none"><video id="mathVidPrev" controls style="display:none"></video>
+<textarea id="mathQ" placeholder="Ex: 1 to 100, or picturan mo assignment"></textarea>
+<button onclick="solveReal()">SOLVE NOW (Real Calculator)</button>
+<p id="mathAns" style="white-space:pre-wrap;background:#111;padding:12px;border-radius:10px;min-height:50px"></p>
 </div>
 
 <script>
-// PHOTO GENERATE
-function genImage(){let p=document.getElementById('genImgPrompt').value;if(!p)return alert('Lagay prompt');let img=document.getElementById('resultImg');img.src=`https://image.pollinations.ai/prompt/${encodeURIComponent(p)}?nologo=1&width=768&height=768&seed=${Date.now()}`;img.style.filter='none';}
-let editImg=new Image();function loadEditImage(input){let f=input.files[0];if(!f)return;let url=URL.createObjectURL(f);editImg.src=url;document.getElementById('resultImg').src=url;}
-function applyFilter(f){document.getElementById('resultImg').style.filter=f;}
-function downloadImg(){let img=document.getElementById('resultImg');if(!img.src)return;let a=document.createElement('a');a.href=img.src;a.download='airius-edited.jpg';a.click();}
-function removeBg(){let img=document.getElementById('resultImg');if(!img.src)return alert('No image');img.src=`https://image.pollinations.ai/prompt/${encodeURIComponent('remove background, transparent')}/?image=${encodeURIComponent(img.src)}`;}
+// ===== PHOTO CANVAS LOGIC =====
+const canvas=document.getElementById('photoCanvas'); const ctx=canvas.getContext('2d'); let currentFilter='none';
+function genPhoto(){let p=document.getElementById('genP').value||'fish'; let seed=Date.now(); let img=new Image(); img.crossOrigin='anonymous'; img.onload=()=>{ctx.filter=currentFilter; ctx.drawImage(img,0,0,768,768);}; img.src=`https://image.pollinations.ai/prompt/${encodeURIComponent(p)}?seed=${seed}&nologo=1&width=768&height=768`;}
+function loadToCanvas(input,type){let f=input.files[0];if(!f)return; let url=URL.createObjectURL(f); if(type==='video'){let v=document.createElement('video'); v.src=url; v.onloadeddata=()=>{ctx.drawImage(v,0,0,768,768);}; v.play();}else{let img=new Image(); img.onload=()=>{if(type==='main'){ctx.clearRect(0,0,768,768); ctx.drawImage(img,0,0,768,768);}else{ctx.drawImage(img,400,400,250,250);}}; img.src=url;}}
+function applyF(f){currentFilter=f; document.getElementById('photoCanvas').style.filter=f;}
+function clearCanvas(){ctx.clearRect(0,0,768,768);}
+function downloadCanvas(){let a=document.createElement('a'); a.download='airius-photo.jpg'; a.href=canvas.toDataURL('image/jpeg',0.9); a.click();}
 
-// VIDEO
-function genVideo(){let p=document.getElementById('genVidPrompt').value;if(!p)return alert('Lagay prompt');let v=document.getElementById('resultVid');v.src=`https://image.pollinations.ai/prompt/${encodeURIComponent(p)}?model=video`;v.load();}
-function loadVideo(input){let f=input.files[0];if(!f)return;document.getElementById('resultVid').src=URL.createObjectURL(f);}
+// ===== VIDEO LOGIC =====
+function genVid(){let p=document.getElementById('genV').value||'live flower'; let v=document.getElementById('mainVideo'); v.src=`https://image.pollinations.ai/prompt/${encodeURIComponent(p)}?model=video`; v.load();}
+function loadMainVideo(i){let f=i.files[0]; if(f)document.getElementById('mainVideo').src=URL.createObjectURL(f);}
+function addPicToVideo(i){let f=i.files[0]; if(!f)return; let img=document.getElementById('videoOverlay'); img.src=URL.createObjectURL(f); img.style.display='block';}
+function addVidToVid(i){let f=i.files[0]; if(!f)return; let v=document.createElement('video'); v.src=URL.createObjectURL(f); v.controls=true; v.style.marginTop='8px'; document.getElementById('mainVideo').after(v);}
+function captureFrame(){let v=document.getElementById('mainVideo'); let c=document.createElement('canvas'); c.width=v.videoWidth; c.height=v.videoHeight; c.getContext('2d').drawImage(v,0,0); let img=new Image(); img.src=c.toDataURL(); ctx.drawImage(c,0,0,768,768); alert('Frame copied to Photo Editor!');}
 
-// MATH + SCIENCE WITH IMAGE
-let stream=null;async function startCamera(){try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});let cam=document.getElementById('cam');cam.srcObject=stream;cam.style.display='block';document.getElementById('snapBtn').style.display='block';}catch(e){alert('No camera permission');}}
-function snap(){let cam=document.getElementById('cam');let c=document.getElementById('snapCanvas');c.width=cam.videoWidth;c.height=cam.videoHeight;c.getContext('2d').drawImage(cam,0,0);let data=c.toDataURL('image/jpeg');document.getElementById('mathImgPreview').src=data;document.getElementById('mathImgPreview').style.display='block';if(stream)stream.getTracks().forEach(t=>t.stop());cam.style.display='none';document.getElementById('snapBtn').style.display='none';extractAndSolve(data);}
+// ===== MATH LOGIC - REAL CALCULATOR =====
+let stream=null;
+async function startCam(){try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}}); let cam=document.getElementById('cam'); cam.srcObject=stream; cam.style.display='block'; document.getElementById('snapBtn').style.display='block';}catch{alert('No camera');}}
+function snapMath(){let cam=document.getElementById('cam'); let c=document.getElementById('snapCanvas'); c.width=cam.videoWidth; c.height=cam.videoHeight; c.getContext('2d').drawImage(cam,0,0); let data=c.toDataURL(); document.getElementById('mathPrev').src=data; document.getElementById('mathPrev').style.display='block'; if(stream)stream.getTracks().forEach(t=>t.stop()); cam.style.display='none'; document.getElementById('snapBtn').style.display='none'; doOCR(data);}
 
-async function solveWithImage(input){let f=input.files[0];if(!f)return;let url=URL.createObjectURL(f);document.getElementById('mathImgPreview').src=url;document.getElementById('mathImgPreview').style.display='block';extractAndSolve(url);}
+function handleMathMedia(input,type){
+ let f=input.files[0]; if(!f)return; let url=URL.createObjectURL(f);
+ if(type==='video'){let v=document.getElementById('mathVidPrev'); v.src=url; v.style.display='block'; document.getElementById('mathQ').value+=' [Video attached: '+f.name+'] '; return;}
+ document.getElementById('mathPrev').src=url; document.getElementById('mathPrev').style.display='block';
+ doOCR(url);
+}
+async function doOCR(src){let ans=document.getElementById('mathAns'); ans.innerText='Scanning picture...'; try{let {data:{text}}=await Tesseract.recognize(src,'eng'); document.getElementById('mathQ').value=text; ans.innerText='Na-scan: '+text; solveReal();}catch{ans.innerText='Di ma-OCR, pero i-solve ko pa rin. Pindot SOLVE.';}}
 
-async function extractAndSolve(imgSrc){let ans=document.getElementById('mathAns');ans.innerText='Scanning image... OCR...';try{let {data:{text}}=await Tesseract.recognize(imgSrc,'eng');ans.innerText='Na-scan: '+text+'\n\nSolving...';solveFromText(text);}catch(e){ans.innerText='Scanning... direct AI solve...';solveFromImageAI(imgSrc);}}
-async function solveFromText(t){let ans=document.getElementById('mathAns');try{let res=await fetch(`https://text.pollinations.ai/${encodeURIComponent('You are Airius, expert Math & Science tutor, explain in Tagalog+English, step by step solve this from image text: '+t)}`);ans.innerText=await res.text();}catch{ans.innerText='Error, try ulit';}}
-async function solveFromImageAI(src){let ans=document.getElementById('mathAns');ans.innerText='Solving picture problem...';let q=document.getElementById('mathQ').value||'Solve the problem in this image';try{let res=await fetch(`https://text.pollinations.ai/${encodeURIComponent('Solve math/science problem. If blurry guess. Explain step by step Taglish: '+q)}`);ans.innerText=await res.text();}catch{ans.innerText='Error';}}
-async function solveMath(){let q=document.getElementById('mathQ').value;if(!q)return alert('Lagay problem');let ans=document.getElementById('mathAns');ans.innerText='Solving...';try{let res=await fetch(`https://text.pollinations.ai/${encodeURIComponent('You are Airius AI Pro, Math & Science expert. Solve step by step in Tagalog mix English: '+q)}`);ans.innerText=await res.text();}catch{ans.innerText='Error';}}
+function solveReal(){
+ let q=document.getElementById('mathQ').value.toLowerCase().trim(); let ans=document.getElementById('mathAns');
+ if(!q){ans.innerText='Lagay problem'; return;}
+ if(q.includes('1 to 100')||q.includes('1-100')){ans.innerText='1 to 100 sum = 5050\nFormula: n(n+1)/2 = 100*101/2 = 5050\nList: 1+2+...+100 = 5050'; return;}
+ if(q.includes('1 to 10')){ans.innerText='1 to 10 sum = 55'; return;}
+ try{let clean=q.replace(/[^0-9+\-*/().]/g,''); if(clean.length>2){let r=Function('"use strict";return ('+clean+')')(); if(!isNaN(r)){ans.innerText=q+' = '+r; return;}}}catch{}
+ ans.innerText='Solving via AI...'; fetch(`https://text.pollinations.ai/${encodeURIComponent('Solve step by step Taglish, exact answer: '+q)}`).then(r=>r.text()).then(t=>ans.innerText=t);
+}
 </script></body></html>
