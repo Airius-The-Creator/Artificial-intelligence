@@ -1,1 +1,53 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Airius AI App</title><link rel="manifest" href="manifest.json"><meta name="theme-color" content="#00ffaa"><style>body{font-family:Arial;background:#0f0f0f;color:#fff;padding:15px;max-width:600px;margin:auto}h1{text-align:center;color:#00ffaa}.card{background:#1e1e1e;padding:12px;border-radius:12px;margin:12px 0}input,textarea,button{width:100%;padding:10px;margin:6px 0;border-radius:8px;border:none;box-sizing:border-box}button{background:#00ffaa;color:#000;font-weight:bold}img,video{width:100%;border-radius:8px;margin-top:8px}</style></head><body><h1>🤖 Airius AI</h1><div class="card"><h3>🎨 Photo</h3><input id="imgPrompt" placeholder="Ex: anime girl in Cebu"><button onclick="genImage()">Generate</button><img id="imgResult"></div><div class="card"><h3>🎥 Video</h3><input id="vidPrompt" placeholder="Ex: car drifting"><button onclick="genVideo()">Generate</button><video id="vidResult" controls></video></div><div class="card"><h3>📐 Math & Science</h3><textarea id="mathPrompt" placeholder="Ex: Solve 2x+5=15"></textarea><button onclick="solveMath()">Solve</button><p id="mathResult"></p></div><script>function genImage(){let p=document.getElementById('imgPrompt').value;if(!p)return alert('Lagay prompt');document.getElementById('imgResult').src=`https://image.pollinations.ai/prompt/${encodeURIComponent(p)}?nologo=1&width=512&height=512&seed=${Date.now()}`}function genVideo(){let p=document.getElementById('vidPrompt').value;if(!p)return alert('Lagay prompt');let v=document.getElementById('vidResult');v.src=`https://image.pollinations.ai/prompt/${encodeURIComponent(p)}?model=video`;v.load()}async function solveMath(){let q=document.getElementById('mathPrompt').value;if(!q)return alert('Lagay problem');let r=document.getElementById('mathResult');r.innerText='Solving...';try{let res=await fetch(`https://text.pollinations.ai/${encodeURIComponent("Solve step by step, Tagalog+English: "+q)}`);r.innerText=await res.text()}catch{r.innerText='Error, try ulit'}}</script></body></html>
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Airius AI Pro</title><link rel="manifest" href="manifest.json"><style>body{font-family:Arial;background:#0f0f0f;color:#fff;padding:12px;max-width:700px;margin:auto}h1{text-align:center;color:#00ffaa}h3{margin:0 0 8px}.card{background:#1e1e1e;padding:14px;border-radius:14px;margin:14px 0;border:1px solid #333}input,textarea,button,select{width:100%;padding:11px;margin:6px 0;border-radius:8px;border:none;box-sizing:border-box}button{background:#00ffaa;color:#000;font-weight:bold;cursor:pointer}.row{display:flex;gap:8px}.row button{flex:1}img,video,canvas{width:100%;border-radius:10px;margin-top:8px;background:#000}.filters button{background:#2a2a2a;color:#fff;margin:2px;padding:8px;font-size:12px;width:auto;display:inline-block}</style><script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script></head><body>
+<h1>🤖 Airius AI Pro</h1>
+
+<div class="card"><h3>🎨 Generate / Edit Photo</h3>
+<input id="genImgPrompt" placeholder="Generate: ex. futuristic Cebu city">
+<button onclick="genImage()">Generate Photo</button>
+<hr style="border-color:#333">
+<input type="file" id="editImgFile" accept="image/*" onchange="loadEditImage(this)">
+<div class="filters"><button onclick="applyFilter('none')">Normal</button><button onclick="applyFilter('grayscale(1)')">Black&White</button><button onclick="applyFilter('sepia(1)')">Sepia</button><button onclick="applyFilter('contrast(1.5)')">HD</button><button onclick="applyFilter('blur(2px)')">Blur</button></div>
+<img id="resultImg"><canvas id="editCanvas" style="display:none"></canvas>
+<div class="row"><button onclick="downloadImg()">Download</button><button onclick="removeBg()">Remove BG (AI)</button></div>
+</div>
+
+<div class="card"><h3>🎥 Video - Generate / Upload</h3>
+<input id="genVidPrompt" placeholder="Generate: ex. dragon over sea">
+<button onclick="genVideo()">Generate Video</button>
+<input type="file" id="vidFile" accept="video/*" onchange="loadVideo(this)">
+<video id="resultVid" controls></video>
+</div>
+
+<div class="card"><h3>📐 Math & Science - Scan or File</h3>
+<div class="row"><button onclick="document.getElementById('mathFile').click()">📁 Add Picture (File)</button><button onclick="startCamera()">📷 Scan (Camera)</button></div>
+<input type="file" id="mathFile" accept="image/*" style="display:none" onchange="solveWithImage(this)">
+<video id="cam" style="display:none" autoplay playsinline></video><button id="snapBtn" style="display:none" onclick="snap()">Take Photo</button><canvas id="snapCanvas" style="display:none"></canvas>
+<img id="mathImgPreview" style="display:none">
+<textarea id="mathQ" placeholder="Or type problem: Solve x^2+5x+6=0"></textarea>
+<button onclick="solveMath()">Solve & Explain</button>
+<p id="mathAns" style="white-space:pre-wrap;background:#111;padding:10px;border-radius:8px"></p>
+</div>
+
+<script>
+// PHOTO GENERATE
+function genImage(){let p=document.getElementById('genImgPrompt').value;if(!p)return alert('Lagay prompt');let img=document.getElementById('resultImg');img.src=`https://image.pollinations.ai/prompt/${encodeURIComponent(p)}?nologo=1&width=768&height=768&seed=${Date.now()}`;img.style.filter='none';}
+let editImg=new Image();function loadEditImage(input){let f=input.files[0];if(!f)return;let url=URL.createObjectURL(f);editImg.src=url;document.getElementById('resultImg').src=url;}
+function applyFilter(f){document.getElementById('resultImg').style.filter=f;}
+function downloadImg(){let img=document.getElementById('resultImg');if(!img.src)return;let a=document.createElement('a');a.href=img.src;a.download='airius-edited.jpg';a.click();}
+function removeBg(){let img=document.getElementById('resultImg');if(!img.src)return alert('No image');img.src=`https://image.pollinations.ai/prompt/${encodeURIComponent('remove background, transparent')}/?image=${encodeURIComponent(img.src)}`;}
+
+// VIDEO
+function genVideo(){let p=document.getElementById('genVidPrompt').value;if(!p)return alert('Lagay prompt');let v=document.getElementById('resultVid');v.src=`https://image.pollinations.ai/prompt/${encodeURIComponent(p)}?model=video`;v.load();}
+function loadVideo(input){let f=input.files[0];if(!f)return;document.getElementById('resultVid').src=URL.createObjectURL(f);}
+
+// MATH + SCIENCE WITH IMAGE
+let stream=null;async function startCamera(){try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});let cam=document.getElementById('cam');cam.srcObject=stream;cam.style.display='block';document.getElementById('snapBtn').style.display='block';}catch(e){alert('No camera permission');}}
+function snap(){let cam=document.getElementById('cam');let c=document.getElementById('snapCanvas');c.width=cam.videoWidth;c.height=cam.videoHeight;c.getContext('2d').drawImage(cam,0,0);let data=c.toDataURL('image/jpeg');document.getElementById('mathImgPreview').src=data;document.getElementById('mathImgPreview').style.display='block';if(stream)stream.getTracks().forEach(t=>t.stop());cam.style.display='none';document.getElementById('snapBtn').style.display='none';extractAndSolve(data);}
+
+async function solveWithImage(input){let f=input.files[0];if(!f)return;let url=URL.createObjectURL(f);document.getElementById('mathImgPreview').src=url;document.getElementById('mathImgPreview').style.display='block';extractAndSolve(url);}
+
+async function extractAndSolve(imgSrc){let ans=document.getElementById('mathAns');ans.innerText='Scanning image... OCR...';try{let {data:{text}}=await Tesseract.recognize(imgSrc,'eng');ans.innerText='Na-scan: '+text+'\n\nSolving...';solveFromText(text);}catch(e){ans.innerText='Scanning... direct AI solve...';solveFromImageAI(imgSrc);}}
+async function solveFromText(t){let ans=document.getElementById('mathAns');try{let res=await fetch(`https://text.pollinations.ai/${encodeURIComponent('You are Airius, expert Math & Science tutor, explain in Tagalog+English, step by step solve this from image text: '+t)}`);ans.innerText=await res.text();}catch{ans.innerText='Error, try ulit';}}
+async function solveFromImageAI(src){let ans=document.getElementById('mathAns');ans.innerText='Solving picture problem...';let q=document.getElementById('mathQ').value||'Solve the problem in this image';try{let res=await fetch(`https://text.pollinations.ai/${encodeURIComponent('Solve math/science problem. If blurry guess. Explain step by step Taglish: '+q)}`);ans.innerText=await res.text();}catch{ans.innerText='Error';}}
+async function solveMath(){let q=document.getElementById('mathQ').value;if(!q)return alert('Lagay problem');let ans=document.getElementById('mathAns');ans.innerText='Solving...';try{let res=await fetch(`https://text.pollinations.ai/${encodeURIComponent('You are Airius AI Pro, Math & Science expert. Solve step by step in Tagalog mix English: '+q)}`);ans.innerText=await res.text();}catch{ans.innerText='Error';}}
+</script></body></html>
